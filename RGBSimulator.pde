@@ -13,8 +13,13 @@ ArrayList<PVector>newObsVs = new ArrayList<PVector>();
 
 PVector posPastMousePressed = new PVector(0, 0);
 
-void setup() {
+void settings() {
   size(1200, 800);
+}
+
+void setup() {
+  //Res window setup
+  ResWindowSetup();
 
   //init arrays
   balls = new ArrayList<Ball>();
@@ -78,9 +83,6 @@ void setup() {
   //}
 
   //println(getDistBetweenLinePoint(new PVector(1, 1), new PVector(0, 0), new PVector(0, 1)));
-  
-  //Res window setup
-  ResWindowSetup();
 }
 
 void draw() {

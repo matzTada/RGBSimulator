@@ -1,43 +1,36 @@
 //2016/12/27 TadaMatz
+//intended for Processing 3
 
 import java.awt.Frame;
 import java.awt.BorderLayout;
 
-ResFrame rescf;
 
 void ResWindowSetup() {
-  rescf = addResFrame("ResWindow", 800, 400);
+  String[] args = {"TwoFrameTest"};
+  SecondApplet sa = new SecondApplet();
+  PApplet.runSketch(args, sa);
 }
 
-//so far I can use this class as if there was processing IDE
-public class ResFrame extends PApplet {
-  int w, h;
-  public void setup() {
-    size(w, h);  
+public class SecondApplet extends PApplet {
+  void settings() {
+    size(400, 400);
   }
 
-  public void draw() {
-    background(0);
+  void setup() {
   }
 
-  public ResFrame(Object theParent, int theWidth, int theHeight) {
-    parent = theParent; 
-    w = theWidth; 
-    h = theHeight;
+  void draw() {
+    background(127);
+
+    int totalBall = 0;
+    for (Obstacle tempOb : obstacles) totalBall += tempOb.collisionCnt;
+
+    for (int i = 0; i < obstacles.size(); i++) {
+      fill(255 );      
+      rect((float)i * width / (float)obstacles.size(), height, width / (float)obstacles.size(), -(float)obstacles.get(i).collisionCnt / (float)totalBall * height);
+      println((float)i * width / (float)obstacles.size());
+    }
+    
+    println(totalBall);
   }
-
-  Object parent;
-}
-
-ResFrame addResFrame(String theName, int theWidth, int theHeight) {
-  Frame f = new Frame(theName); 
-  ResFrame p = new ResFrame(this, theWidth, theHeight); 
-  //f.add(p); 
-  //p.init(); 
-  f.setTitle(theName); 
-  f.setSize(p.w, p.h); 
-  f.setLocation(500, 100); 
-  f.setResizable(true); 
-  f.setVisible(true); 
-  return p;
 }
