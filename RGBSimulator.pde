@@ -78,6 +78,9 @@ void setup() {
   //}
 
   //println(getDistBetweenLinePoint(new PVector(1, 1), new PVector(0, 0), new PVector(0, 1)));
+  
+  //Res window setup
+  ResWindowSetup();
 }
 
 void draw() {
