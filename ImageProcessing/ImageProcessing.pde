@@ -22,26 +22,34 @@ void setup() {
     if (!tsub2Flag) break;
   }
 
+  while (deburring(img)); //can be used for getting polygon (
+
+  img.loadPixels(); 
+  for (int i = 0; i < img.width; i++) {
+    for (int j = 0; j < img.height; j++) {
+      int loc = i + j*img.width;      // The functions red(), green(), and blue() pull out the 3 color components from a pixel.
+      if (img.pixels[loc] == color(0)) { 
+        println(i + " " + j);
+        ; //if black
+      }
+    }
+  }
+
+  //ArrayList<PVector> path = seekConnectedPath(img, new PVector(0, 0), 30);
+  //println(path);
   //judge edge and branch
-  edges = judgeEdgeBranch(img);
+  //edges = judgeEdgeBranch(img);
 }
 
 void draw() {
   background(0);
   image(img, 0, 0, width, height);
 
-  println("judgeConnectivity");
-  for (int i = 0; i < edges.size(); i++) {
-    for (int j = i + 1; j < edges.size(); j++) {
-      PVector s = edges.get(i);
-      PVector e = edges.get(j);
-      if (judgeConnectivity(img, s, e)) {
-        stroke(0, 255, 0, 200);
-        line(s.x * width/img.width, s.y * height/img.height, e.x * width/img.width, e.y * height/img.height);
-        noStroke();
-      }
-    }
+  ArrayList<PVector> path = seekConnectedPath(img, new PVector(11, 8), 30);
+  for (PVector tempPV : path) {
+    fill(0, 0, 255, 200);
+    rect(tempPV.x * width/img.width, tempPV.y * height/img.height, width/img.width, height/img.height);
   }
 
-  println("frameRate: " + frameRate + " size:" + edges.size());
+  //println("frameRate: " + frameRate + " size:" + edges.size());
 }    

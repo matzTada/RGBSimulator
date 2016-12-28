@@ -7,6 +7,8 @@ ArrayList<int[][]> thinning1filterKeep = new ArrayList<int [][]>();
 ArrayList<int[][]> thinning2filterDelete = new ArrayList<int [][]>();
 ArrayList<int[][]> thinning2filterKeep = new ArrayList<int [][]>();
 
+ArrayList<int[][]> deburringfilter = new ArrayList<int [][]>();
+
 ArrayList<int[][]> edgefilter = new ArrayList<int [][]>();
 ArrayList<int[][]> branchfilter = new ArrayList<int [][]>();
 
@@ -74,6 +76,18 @@ void initializeFilter() {
   thinning2filterKeep.add(new int[][]{{0, 2, 0}, {1, 1, 1}, {0, 1, 0}});
   thinning2filterKeep.add(new int[][]{{0, 1, 0}, {1, 1, 2}, {0, 1, 0}});
 
+  //deburring
+  deburringfilter.add(new int[][]{{1, 0, 0}, {0, 1, 0}, {0, 0, 0}});
+  deburringfilter.add(new int[][]{{2, 1, 2}, {0, 1, 0}, {0, 0, 0}});
+  deburringfilter.add(new int[][]{{0, 0, 1}, {0, 1, 0}, {0, 0, 0}});
+  deburringfilter.add(new int[][]{{2, 0, 0}, {1, 1, 0}, {2, 0, 0}});
+  deburringfilter.add(new int[][]{{0, 0, 0}, {0, 1, 0}, {0, 0, 0}});
+  deburringfilter.add(new int[][]{{0, 0, 2}, {0, 1, 1}, {0, 0, 2}});
+  deburringfilter.add(new int[][]{{0, 0, 0}, {0, 1, 0}, {1, 0, 0}});
+  deburringfilter.add(new int[][]{{0, 0, 0}, {0, 1, 0}, {2, 1, 2}});
+  deburringfilter.add(new int[][]{{0, 0, 0}, {0, 1, 0}, {0, 0, 1}}); 
+
+  //edge
   edgefilter.add(new int[][]{{0, 0, 0 }, {0, 1, 0 }, {2, 1, 2 }});
   edgefilter.add(new int[][]{{2, 0, 0 }, {1, 1, 0 }, {2, 0, 0 }});
   edgefilter.add(new int[][]{{2, 1, 2 }, {0, 1, 0 }, {0, 0, 0 }});
@@ -123,6 +137,7 @@ boolean thinningSub1(PImage image) {     //Thinning subprocess 1
 
         if (deleteFlag) {
           image.pixels[loc] = color(200);
+          //image.pixels[loc] = color(255);
           returnFlag = true;
         } else {
           image.pixels[loc] = color(0);
@@ -159,6 +174,7 @@ boolean thinningSub2(PImage image) {     //Thinning subprocess 2
 
         if (deleteFlag) {
           image.pixels[loc] = color(200);
+          //image.pixels[loc] = color(255);
           returnFlag = true;
         } else {
           image.pixels[loc] = color(0);
@@ -168,6 +184,39 @@ boolean thinningSub2(PImage image) {     //Thinning subprocess 2
   }
   return returnFlag;
 }
+
+boolean deburring(PImage image) {     //trimming
+  boolean returnFlag = false;
+  image.loadPixels(); 
+  for (int y = 1; y < image.height-1; y++) {
+    for (int x = 1; x < image.width-1; x++) {
+      int loc = x + y*image.width;      // The functions red(), green(), and blue() pull out the 3 color components from a pixel.
+      if (image.pixels[loc] == color(0)) { //if black
+        int rastaMatrix[][] = new int[3][3];
+        for (int i = -1; i <= 1; i++) 
+          for (int j = -1; j <= 1; j++) 
+            if (image.pixels[loc + i + j*image.width] == color(0)) rastaMatrix[i+1][j+1] = 1;
+            else rastaMatrix[i+1][j+1] = 0;
+
+        boolean deburringFlag= false;
+        for (int[][] tempFilter : deburringfilter) 
+          if (judgeRastaMatrix(rastaMatrix, tempFilter, 3)) 
+            deburringFlag = true;
+
+        if (deburringFlag) {
+          //image.pixels[loc] = color(200);
+          image.pixels[loc] = color(255);
+          returnFlag = true;
+        } else {
+          image.pixels[loc] = color(0);
+        }
+      }
+    }
+  }
+  return returnFlag;
+}
+
+
 
 ArrayList<PVector> judgeEdgeBranch(PImage image) {     //judge edge branch
   ArrayList<PVector> returnEdges = new ArrayList<PVector>();
@@ -246,4 +295,45 @@ float getDistBetweenLinePoint(PVector dv, PVector i, PVector p) { //direction ve
 
   //calculate dist
   return abs(a * p.x + b * p.y + c) / sqrt(pow(a, 2) + pow(b, 2));
+}
+
+boolean recursiveSeekConnectedPath(PVector pos, int[][] imgArray, int lenGiven, ArrayList<PVector> path) {
+  if (path.size() >= lenGiven) { 
+    return true;
+  }
+  boolean getFlag = false;
+  for (int j = -1; j <= 1; j++) {
+    for (int i = -1; i <= 1; i++) {
+      if (imgArray[(int)pos.x + (i+1)][(int)pos.y + (j+1)] == 1) {
+        imgArray[(int)pos.x + (i+1)][(int)pos.y + (j+1)] = 2;
+        path.add(new PVector((int)pos.x + (i+1), (int)pos.y + (j+1)));
+        getFlag = recursiveSeekConnectedPath(new PVector((int)pos.x + (i+1), (int)pos.y + (j+1)), imgArray, lenGiven, path);
+        if (getFlag) break;
+        path.remove(path.size() - 1);
+        imgArray[(int)pos.x + (i+1)][(int)pos.y + (j+1)] = 1;
+      }
+    }
+    if (getFlag) break;
+  }
+  if (getFlag) return true;
+  else return false;
+}
+
+ArrayList<PVector> seekConnectedPath(PImage image, PVector s, int len) { //(start point, scoped length)
+  image.loadPixels(); 
+  int [][] imageArray = new int[image.width][image.height];
+  for (int y = 0; y < image.height; y++) {
+    for (int x = 0; x < image.width; x++) {
+      int loc = x + y*image.width;      // The functions red(), green(), and blue() pull out the 3 color components from a pixel.
+      if (image.pixels[loc] == color(0)) imageArray[x][y] = 1; //if black
+      else imageArray[x][y] = 0;
+    }
+  }
+
+  ArrayList<PVector> path = new ArrayList<PVector>();
+  if (recursiveSeekConnectedPath(s, imageArray, len, path)) {
+    //println("s: " + s);
+    //println("l: " + path.get(path.size() - 1));
+  }
+  return path;
 }
