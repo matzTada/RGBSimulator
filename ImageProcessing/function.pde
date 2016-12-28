@@ -326,7 +326,8 @@ boolean recursiveSeekConnectedPath(PVector pos, int[][] imgArray, int lenGiven, 
   else return false;
 }
 
-ArrayList<PVector> seekConnectedPath(PImage image, PVector s, int lenGiven) { //(start point, scoped length)
+boolean judgeEdgeByAngle(PImage image, PVector s, int lenGiven, float judgeAngle) { //(image, start point, scoped length, judgeAngle)
+  //initialize image array
   image.loadPixels(); 
   int [][] imageArray = new int[image.width][image.height];
   for (int y = 0; y < image.height; y++) {
@@ -373,15 +374,73 @@ ArrayList<PVector> seekConnectedPath(PImage image, PVector s, int lenGiven) { //
   //  rect(tempPV.x * width/img.width, tempPV.y * height/img.height, width/img.width, height/img.height);
   //}
 
+  //get vertex by angle 
   if (path1.size() != 0 && path2.size() != 0) { 
     float degree = degrees(PVector.angleBetween(PVector.sub(path1.get(path1.size()-1), path1.get(0)), PVector.sub(path2.get(path2.size()-1), path2.get(0))));
-    if (degree < 170) {
+    if (degree < judgeAngle) {
       //then get this point(i, j) as a vector
-      println(s + " degree: " + degree);
+      //println(s + " degree: " + degree);
       fill(255, 0, 0, 200);
       rect(s.x * width/img.width, s.y * height/img.height, width/img.width, height/img.height);
+      return true;
     }
   }
+  return false;
+}
 
-  return returnPath;
+
+boolean recursiveAlongPath(PVector pos, PVector posGiven, int[][] matrix, int lenGiven, ArrayList<PVector> path, ArrayList<PVector> vertex) {
+  if (path.size() >= lenGiven || (path.size() > 2 && pos.x == posGiven.x && pos.y == posGiven.y)) { 
+    return true;
+  }
+  boolean getFlag = false;
+  for (int j = -1; j <= 1; j++) {
+    for (int i = -1; i <= 1; i++) {
+      if (matrix[(int)pos.x + i][(int)pos.y + j] == 1 || matrix[(int)pos.x + i][(int)pos.y + j] == 2) {
+        PVector nextPV = new PVector((int)pos.x + i, (int)pos.y + j);
+        path.add(nextPV);
+        if (matrix[(int)pos.x + i][(int)pos.y + j] == 2) vertex.add(nextPV);
+        matrix[(int)pos.x + i][(int)pos.y + j] = 3;
+        getFlag = recursiveAlongPath(new PVector((int)pos.x + i, (int)pos.y + j), posGiven, matrix, lenGiven, path, vertex);
+        if (getFlag) break;
+        path.remove(path.size() - 1);
+        if (matrix[(int)pos.x + i][(int)pos.y + j] == 2) vertex.remove(vertex.size() - 1);
+        matrix[(int)pos.x + i][(int)pos.y + j] = 1;
+      }
+    }
+    if (getFlag) break;
+  }
+
+  if (getFlag) return true;
+  else return false;
+}
+
+ArrayList<PVector> getVectorByMatrix(int [][] matrix, PVector s, int lenGiven) {
+  //for (int j = 0; j < img.height; j++) {
+  //  for (int i = 0; i < img.width; i++) {
+  //    print(matrix[i][j] + " ");
+  //  }
+  //  println("");
+  //}
+
+  //get both edges
+  ArrayList<PVector> path = new ArrayList<PVector>();
+  ArrayList<PVector> vertex = new ArrayList<PVector>();
+  println("s: " + s);
+  if (recursiveAlongPath(s, s, matrix, lenGiven, path, vertex)) {
+    //println("s: " + s);
+  }
+
+  for (PVector tempPV : path) {
+    if (tempPV == path.get(0)) fill(0, 255, 0, 200);
+    else if (tempPV == path.get(path.size()-1)) fill(255, 0, 0, 200); 
+    else fill(0, 0, 255, 200);
+    rect(tempPV.x * width/img.width, tempPV.y * height/img.height, width/img.width, height/img.height);
+  }
+  for (PVector tempPV : vertex) {
+    fill(255, 165, 0, 200);
+    rect(tempPV.x * width/img.width, tempPV.y * height/img.height, width/img.width, height/img.height);
+  }
+
+  return vertex;
 }
