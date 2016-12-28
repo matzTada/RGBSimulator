@@ -24,19 +24,19 @@ void setup() {
 
   while (deburring(img)); //can be used for getting polygon (
 
+  int totalBlackCell = 0;
   img.loadPixels(); 
   for (int i = 0; i < img.width; i++) {
     for (int j = 0; j < img.height; j++) {
       int loc = i + j*img.width;      // The functions red(), green(), and blue() pull out the 3 color components from a pixel.
       if (img.pixels[loc] == color(0)) { 
         println(i + " " + j);
-        ; //if black
+        totalBlackCell++;
       }
     }
   }
+  println("totalBlackCell: " + totalBlackCell);
 
-  //ArrayList<PVector> path = seekConnectedPath(img, new PVector(0, 0), 30);
-  //println(path);
   //judge edge and branch
   //edges = judgeEdgeBranch(img);
 }
@@ -45,11 +45,14 @@ void draw() {
   background(0);
   image(img, 0, 0, width, height);
 
-  ArrayList<PVector> path = seekConnectedPath(img, new PVector(11, 8), 30);
+  ArrayList<PVector> path = seekConnectedPath(img, new PVector(8, 9), 12);
+  println(path);
+
   for (PVector tempPV : path) {
     fill(0, 0, 255, 200);
     rect(tempPV.x * width/img.width, tempPV.y * height/img.height, width/img.width, height/img.height);
   }
 
+  noLoop();
   //println("frameRate: " + frameRate + " size:" + edges.size());
 }    

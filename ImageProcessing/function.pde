@@ -1,4 +1,4 @@
-//2016/12/28 TadaMatz
+//2016/12/28 TadaMatz //<>//
 //reference http://www.ice.gunma-ct.ac.jp/~tsurumi/courses/ImagePro/binarization2.pdf
 
 
@@ -86,6 +86,12 @@ void initializeFilter() {
   deburringfilter.add(new int[][]{{0, 0, 0}, {0, 1, 0}, {1, 0, 0}});
   deburringfilter.add(new int[][]{{0, 0, 0}, {0, 1, 0}, {2, 1, 2}});
   deburringfilter.add(new int[][]{{0, 0, 0}, {0, 1, 0}, {0, 0, 1}}); 
+
+  deburringfilter.add(new int[][]{{2, 1, 2}, {1, 1, 0}, {2, 0, 0}});
+  deburringfilter.add(new int[][]{{2, 1, 2}, {0, 1, 1}, {0, 0, 2}});
+  deburringfilter.add(new int[][]{{2, 0, 0}, {1, 1, 0}, {2, 1, 2}});
+  deburringfilter.add(new int[][]{{0, 0, 2}, {0, 1, 1}, {2, 1, 2}});
+
 
   //edge
   edgefilter.add(new int[][]{{0, 0, 0 }, {0, 1, 0 }, {2, 1, 2 }});
@@ -315,6 +321,7 @@ boolean recursiveSeekConnectedPath(PVector pos, int[][] imgArray, int lenGiven, 
     }
     if (getFlag) break;
   }
+ 
   if (getFlag) return true;
   else return false;
 }
@@ -328,6 +335,13 @@ ArrayList<PVector> seekConnectedPath(PImage image, PVector s, int len) { //(star
       if (image.pixels[loc] == color(0)) imageArray[x][y] = 1; //if black
       else imageArray[x][y] = 0;
     }
+  }
+
+  for (int y = 0; y < image.height; y++) {
+    for (int x = 0; x < image.width; x++) {
+      print(imageArray[x][y] + " ");
+    }
+    println("");
   }
 
   ArrayList<PVector> path = new ArrayList<PVector>();
