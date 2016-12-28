@@ -303,6 +303,8 @@ float getDistBetweenLinePoint(PVector dv, PVector i, PVector p) { //direction ve
   return abs(a * p.x + b * p.y + c) / sqrt(pow(a, 2) + pow(b, 2));
 }
 
+PVector seekPos = new PVector(0,0);
+
 boolean recursiveSeekConnectedPath(PVector pos, int[][] imgArray, int lenGiven, ArrayList<PVector> path) {
   if (path.size() >= lenGiven) { 
     return true;
@@ -310,13 +312,13 @@ boolean recursiveSeekConnectedPath(PVector pos, int[][] imgArray, int lenGiven, 
   boolean getFlag = false;
   for (int j = -1; j <= 1; j++) {
     for (int i = -1; i <= 1; i++) {
-      if (imgArray[(int)pos.x + (i+1)][(int)pos.y + (j+1)] == 1) {
-        imgArray[(int)pos.x + (i+1)][(int)pos.y + (j+1)] = 2;
-        path.add(new PVector((int)pos.x + (i+1), (int)pos.y + (j+1)));
-        getFlag = recursiveSeekConnectedPath(new PVector((int)pos.x + (i+1), (int)pos.y + (j+1)), imgArray, lenGiven, path);
+      if (imgArray[(int)pos.x + i][(int)pos.y + j] == 1) {
+        imgArray[(int)pos.x + i][(int)pos.y + j] = 2;
+        path.add(new PVector((int)pos.x + i, (int)pos.y + j));
+        getFlag = recursiveSeekConnectedPath(new PVector((int)pos.x + i, (int)pos.y + j), imgArray, lenGiven, path);
         if (getFlag) break;
         path.remove(path.size() - 1);
-        imgArray[(int)pos.x + (i+1)][(int)pos.y + (j+1)] = 1;
+        imgArray[(int)pos.x + i][(int)pos.y + j] = 1;
       }
     }
     if (getFlag) break;
@@ -343,6 +345,8 @@ ArrayList<PVector> seekConnectedPath(PImage image, PVector s, int len) { //(star
     }
     println("");
   }
+  
+  seekPos.set(s.x, s.y);
 
   ArrayList<PVector> path = new ArrayList<PVector>();
   if (recursiveSeekConnectedPath(s, imageArray, len, path)) {
