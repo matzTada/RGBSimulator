@@ -303,8 +303,6 @@ float getDistBetweenLinePoint(PVector dv, PVector i, PVector p) { //direction ve
   return abs(a * p.x + b * p.y + c) / sqrt(pow(a, 2) + pow(b, 2));
 }
 
-PVector seekPos = new PVector(0,0);
-
 boolean recursiveSeekConnectedPath(PVector pos, int[][] imgArray, int lenGiven, ArrayList<PVector> path) {
   if (path.size() >= lenGiven) { 
     return true;
@@ -323,12 +321,12 @@ boolean recursiveSeekConnectedPath(PVector pos, int[][] imgArray, int lenGiven, 
     }
     if (getFlag) break;
   }
- 
+
   if (getFlag) return true;
   else return false;
 }
 
-ArrayList<PVector> seekConnectedPath(PImage image, PVector s, int len) { //(start point, scoped length)
+ArrayList<PVector> seekConnectedPath(PImage image, PVector s, int lenGiven) { //(start point, scoped length)
   image.loadPixels(); 
   int [][] imageArray = new int[image.width][image.height];
   for (int y = 0; y < image.height; y++) {
@@ -339,19 +337,51 @@ ArrayList<PVector> seekConnectedPath(PImage image, PVector s, int len) { //(star
     }
   }
 
-  for (int y = 0; y < image.height; y++) {
-    for (int x = 0; x < image.width; x++) {
-      print(imageArray[x][y] + " ");
-    }
-    println("");
-  }
-  
-  seekPos.set(s.x, s.y);
+  //for (int y = 0; y < image.height; y++) {
+  //  for (int x = 0; x < image.width; x++) {
+  //    print(imageArray[x][y] + " ");
+  //  }
+  //  println("");
+  //}
 
-  ArrayList<PVector> path = new ArrayList<PVector>();
-  if (recursiveSeekConnectedPath(s, imageArray, len, path)) {
-    //println("s: " + s);
-    //println("l: " + path.get(path.size() - 1));
+
+  //get both edges
+  ArrayList<PVector> returnPath = new ArrayList<PVector>();
+  ArrayList<PVector> path1 = new ArrayList<PVector>();
+  if (recursiveSeekConnectedPath(s, imageArray, lenGiven, path1)) {
+    //println("s: " + s + " l: " + path1.get(path1.size() - 1));
   }
-  return path;
+  returnPath.addAll(path1);
+
+  //for (PVector tempPV : path1) {
+  //  if (tempPV == path1.get(0)) fill(0, 255, 0, 200);
+  //  else if (tempPV == path1.get(path1.size()-1)) fill(255, 0, 0, 200); 
+  //  else fill(0, 0, 255, 200);
+  //  rect(tempPV.x * width/img.width, tempPV.y * height/img.height, width/img.width, height/img.height);
+  //}
+
+  ArrayList<PVector> path2 = new ArrayList<PVector>();
+  if (recursiveSeekConnectedPath(s, imageArray, lenGiven, path2)) {
+    //println("s: " + s + " l: " + path2.get(path2.size() - 1));
+  }
+  returnPath.addAll(path2);
+
+  //for (PVector tempPV : path2) {
+  //  if (tempPV == path2.get(0)) fill(0, 255, 0, 200);
+  //  else if (tempPV == path2.get(path2.size()-1)) fill(255, 0, 0, 200); 
+  //  else fill(0, 0, 255, 200);
+  //  rect(tempPV.x * width/img.width, tempPV.y * height/img.height, width/img.width, height/img.height);
+  //}
+
+  if (path1.size() != 0 && path2.size() != 0) { 
+    float degree = degrees(PVector.angleBetween(PVector.sub(path1.get(path1.size()-1), path1.get(0)), PVector.sub(path2.get(path2.size()-1), path2.get(0))));
+    if (degree < 170) {
+      //then get this point(i, j) as a vector
+      println(s + " degree: " + degree);
+      fill(255, 0, 0, 200);
+      rect(s.x * width/img.width, s.y * height/img.height, width/img.width, height/img.height);
+    }
+  }
+
+  return returnPath;
 }
