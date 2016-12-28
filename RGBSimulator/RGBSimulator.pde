@@ -26,7 +26,7 @@ void setup() {
   obstacles = new ArrayList<Obstacle>();
 
   //ball
-  for (int i = 0; i < 3000; i++)  balls.add(new Ball(width/2, height/2, random(-5, 5), random(-5, 5), random(10, 10)));
+  for (int i = 0; i < 1000; i++)  balls.add(new Ball(width/2, height/2, random(-5, 5), random(-5, 5), random(10, 10)));
 
   ArrayList<PVector> vs = new ArrayList<PVector>();
   ////object wall
