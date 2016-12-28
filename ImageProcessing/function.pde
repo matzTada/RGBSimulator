@@ -207,13 +207,43 @@ ArrayList<PVector> judgeEdgeBranch(PImage image) {     //judge edge branch
 boolean judgeConnectivity(PImage image, PVector start, PVector end) {     //judge edge branch
   boolean returnFlag = false;
   image.loadPixels(); 
-  for (int y = 1; y < image.height-1; y++) {
-    for (int x = 1; x < image.width-1; x++) {
-      int loc = x + y*image.width;      // The functions red(), green(), and blue() pull out the 3 color components from a pixel.
-      if (image.pixels[loc] == color(0)) { //if black
+
+  PVector dv = PVector.sub(end, start);
+
+  float a = dv.y;
+  float b = -dv.x;
+  float c = dv.x * start.y - dv.y * start.x;     
+
+  int picCnt = 0;
+  int lineCnt = 0;
+
+  for (int j = (int)min(start.y, end.y); j <= (int)max(start.y, end.y); j++) {
+    for (int i = (int)min(start.x, end.x); i <= (int)max(start.x, end.x); i++) {
+      if (getDistBetweenLinePoint(dv, start, new PVector(i, j)) <= 1) {
+        //if (abs(a * i + b * j + c) <= 100) {
+        lineCnt++;
+        int loc = i + j*image.width;
+        if (image.pixels[loc] == color(0)) picCnt++; //if black
+
+        //fill(0, 0, 255, 200);
+        //rect(i * width/img.width, j * height/img.height, (float)width/img.width, (float)height/img.height);
       }
     }
   }
-  //return returnFlag;
-  return true;
+
+  println(start + " " + end + " " + picCnt + " " + lineCnt + " " + (float)picCnt / lineCnt);
+
+  if ((float)picCnt / lineCnt > 0.3) returnFlag = true;
+
+  return returnFlag;
+}
+
+float getDistBetweenLinePoint(PVector dv, PVector i, PVector p) { //direction vector, the point where the direction vector pass, the point where the directin 
+  //calculate parameter ax + by + c = 0
+  float a = dv.y;
+  float b = -dv.x;
+  float c = dv.x * i.y - dv.y * i.x;
+
+  //calculate dist
+  return abs(a * p.x + b * p.y + c) / sqrt(pow(a, 2) + pow(b, 2));
 }

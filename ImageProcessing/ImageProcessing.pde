@@ -30,14 +30,18 @@ void draw() {
   background(0);
   image(img, 0, 0, width, height);
 
-  for (PVector s : edges) {
-    for (PVector e : edges) {
+  println("judgeConnectivity");
+  for (int i = 0; i < edges.size(); i++) {
+    for (int j = i + 1; j < edges.size(); j++) {
+      PVector s = edges.get(i);
+      PVector e = edges.get(j);
       if (judgeConnectivity(img, s, e)) {
-        fill(0, 255, 0);
+        stroke(0, 255, 0, 200);
         line(s.x * width/img.width, s.y * height/img.height, e.x * width/img.width, e.y * height/img.height);
+        noStroke();
       }
     }
   }
-  
+
   println("frameRate: " + frameRate + " size:" + edges.size());
 }    
