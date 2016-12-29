@@ -23,11 +23,11 @@ public class SecondApplet extends PApplet {
     background(127);
 
     int totalBall = 0;
-    for (Obstacle tempOb : obstacles) totalBall += tempOb.collisionCnt;
+    for (Obstacle tempOb : obstacles) totalBall += tempOb.drawnCnt;
 
     for (int i = 0; i < obstacles.size(); i++) {
       fill(255 );      
-      rect((float)i * width / (float)obstacles.size(), height, width / (float)obstacles.size(), -(float)obstacles.get(i).collisionCnt / (float)totalBall * height);
+      rect((float)i * width / (float)obstacles.size(), height, width / (float)obstacles.size(), -(float)obstacles.get(i).drawnCnt / (float)totalBall * height);
       println((float)i * width / (float)obstacles.size());
     }
     

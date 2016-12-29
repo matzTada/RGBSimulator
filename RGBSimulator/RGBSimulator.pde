@@ -16,7 +16,7 @@ PVector posPastMousePressed = new PVector(0, 0);
 PImage loadedImg;
 
 void settings() {
-  size(800, 800);
+  size(1200, 800);
 }
 
 void setup() {
@@ -30,15 +30,12 @@ void setup() {
   //ball
   for (int i = 0; i < 500; i++)  balls.add(new Ball(width/2, height/2, random(-5, 5), random(-5, 5), random(10, 10)));
 
-  //write obstacles from image
+  //get obstacles from image
   loadedImg = loadImage("data/map.png");
-
   ArrayList<ArrayList<PVector>> vss = getPolygonVectorFromImage(loadedImg, 10, 170, 1000);
-
   for (ArrayList<PVector> tempVS : vss) {
-    for (PVector tempPV : tempVS) {
+    for (PVector tempPV : tempVS) 
       tempPV.set(tempPV.x * width/loadedImg.width, tempPV.y * height/loadedImg.height);
-    }
     obstacles.add(new Obstacle(tempVS));
   }
 
@@ -111,10 +108,9 @@ void draw() {
 
   //for (int i = 4; i < obstacles.size(); i++) obstacles.get(i).rotate(radians(1));
   for (Obstacle tempOb : obstacles) { 
-    tempOb.display();
-    for (Ball tempBall : balls) { 
-      tempBall.speed.add(tempOb.gravity(tempBall.pos));
-    }
+      for (Ball tempBall : balls) { //gravity
+        tempBall.speed.add(tempOb.gravity(tempBall.pos));
+      }
   }
   for (Ball tempBall : balls) { 
     tempBall.collision(obstacles);
@@ -181,6 +177,12 @@ void mousePressed() {
         //tempBall.initialize();
       }
     }
+    for (int i = obstacles.size() - 1; i >= 0; i--) {
+      if (judgeInObject(obstacles.get(i).vs, new PVector(mouseX, mouseY))) { 
+        obstacles.get(i).character++;
+        if (obstacles.get(i).character > 1) obstacles.get(i).character = 0;
+      }
+    }
   }
 }
 
@@ -220,7 +222,7 @@ void keyPressed() {
   case 'i': 
     //for (Ball tempBall : balls) tempBall.initialize();
     for (Ball tempBall : balls) tempBall.initialize(mouseX, mouseY, random(-5, 5), random(-5, 5), random(10, 10));    
-    for (Obstacle tempObs : obstacles) tempObs.collisionCnt = 0;
+    for (Obstacle tempObs : obstacles) tempObs.drawnCnt = 0;
     break;
   }
 }

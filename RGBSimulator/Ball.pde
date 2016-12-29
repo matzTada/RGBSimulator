@@ -66,19 +66,22 @@ class Ball {
           if (nearestDist > tempDist) {
             nearestDist = tempDist;
 
-            //reflection
-            ////println(nearestDist);
-            //PVector d_n = new PVector(-PVector.sub(ep, sp).y, PVector.sub(ep, sp).x);
-            //PVector d_is = getIntersection(PVector.sub(ep, sp), sp, d_n, pos);
-            //PVector n = PVector.sub(pos, d_is).normalize();
-            //pos = PVector.add(d_is, PVector.mult(n, size));
-            //speed = PVector.sub(speed, PVector.mult(n, PVector.dot(speed, n) * 2)); //get reflected slide
-
-            //fountain
-            tempOb.collisionCnt++;
-            initialize(mouseX, mouseY, random(-5, 5), random(-5, 5), random(10, 10));    
-            //initialize();
-            return true;
+            if (tempOb.character == OBJ_CHR_REFLECTION) {
+              //reflection
+              //println(nearestDist);
+              PVector d_n = new PVector(-PVector.sub(ep, sp).y, PVector.sub(ep, sp).x);
+              PVector d_is = getIntersection(PVector.sub(ep, sp), sp, d_n, pos);
+              PVector n = PVector.sub(pos, d_is).normalize();
+              pos = PVector.add(d_is, PVector.mult(n, size));
+              speed = PVector.sub(speed, PVector.mult(n, PVector.dot(speed, n) * 2)); //get reflected slide
+              return true;
+            } else if (tempOb.character == OBJ_CHR_DRAWN) {
+              //drawn
+              tempOb.drawnCnt++;
+              initialize(mouseX, mouseY, random(-5, 5), random(-5, 5), random(10, 10));    
+              //initialize();
+              return true;
+            }
           }
         }
       }
@@ -189,81 +192,3 @@ class Ball {
     line(pos.x, pos.y, pos.x + speed.x, pos.y + speed.y);
   }
 };
-
-class Obstacle {
-  ArrayList<PVector> vs;
-  PVector center;
-  float areaSize;
-  boolean isGrabed;
-  int collisionCnt;
-
-  Obstacle(ArrayList<PVector> _vs) {
-    vs = new ArrayList<PVector>(_vs);
-    center = getCenter();
-    areaSize = getAreaSize();
-    isGrabed = false;
-    collisionCnt = 0;
-  }
-
-  void display() {
-    if (judgeInObject(vs, new PVector(mouseX, mouseY))) fill(0, 0, 255, 100);
-    else fill(255, 127, 0, 100);
-    stroke(255);
-    strokeWeight(2);
-    beginShape();
-    for (PVector tempPV : vs)vertex(tempPV.x, tempPV.y);
-    endShape(CLOSE);
-    
-    fill(255);
-    textAlign(CENTER, CENTER);
-    text(collisionCnt, center.x, center.y);
-
-    //for (PVector tempVs : vs) {
-    //  fill(255);
-    //  line(mouseX, mouseY, tempVs.x, tempVs.y);
-    //  text("" + PVector.sub(tempVs, new PVector(mouseX, mouseY)) + (degrees(atan2(tempVs.x - mouseX, tempVs.y - mouseY)) + 180), 
-    //    (mouseX + tempVs.x)/2, (mouseY + tempVs.y)/2);
-    //}
-  }
-
-  void translatePos(float _x, float _y) { //rotate on the spot
-    for (PVector tempPV : vs) tempPV.sub(center).add(new PVector(_x, _y));
-    center = getCenter();
-    areaSize = getAreaSize();
-  }
-
-  void rotate(float _angle) {
-    for (PVector tempPV : vs) tempPV.sub(center).rotate(_angle).add(center);
-  }
-
-  PVector getCenter() {
-    PVector c = new PVector(0, 0);
-    for (PVector tempVs : vs) c.add(tempVs);
-    c.set(c.x/vs.size(), c.y/vs.size());
-    return c;
-  }
-
-  float getAreaSize() {
-    float sumArea = 0.0;
-    for (int i = 0; i < vs.size(); i++) {
-      PVector sp = PVector.sub(vs.get(i), center);
-      PVector ep = new PVector(0, 0);
-      if (i == vs.size() - 1)  ep = PVector.sub(vs.get(0), center);
-      else ep = PVector.sub(vs.get(i + 1), center);
-
-      float crossValue = (sp.x * ep.y - sp.y * ep.x); //cross
-
-      sumArea += abs(crossValue);
-    }
-    return sumArea;
-  }
-
-  PVector gravity(PVector p) {
-    //PVector tempSpeed = PVector.sub(center, tempBall.pos).normalize().mult(0.0001 * tempBall.pos.dist(c)); //spring like power
-    PVector tempSpeed = PVector.sub(center, p).normalize()
-      .mult((areaSize / 10000) * pow(max(width, height), 1) / pow(p.dist(center), 2)); //universal gravitation like power
-    //.mult(constrain((areaSize / 10000) * pow(max(width, height), 1) / pow(p.dist(center), 2), 0.001, 5)); //with constrain universal gravitation like power
-    return tempSpeed;       
-    //println(constrain((areaSize / 10000) * pow(max(width, height), 1) / pow(tempBall.pos.dist(center), 2), 0.001, 5));
-  }
-};  
