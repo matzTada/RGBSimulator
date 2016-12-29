@@ -157,7 +157,7 @@ boolean thinningSub1(PImage image) {     //Thinning subprocess 1
 boolean thinningSub2(PImage image) {     //Thinning subprocess 2
   boolean returnFlag = false;
   image.loadPixels(); 
-  for (int y = image.width-2; y >= 1; y--) {
+  for (int y = image.height-2; y >= 1; y--) {
     for (int x = 1; x < image.width-1; x++) {
       int loc = x + y*image.width;      // The functions red(), green(), and blue() pull out the 3 color components from a pixel.
       if (image.pixels[loc] == color(0)) { //if black

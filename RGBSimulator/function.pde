@@ -136,10 +136,8 @@ void drawGravityField(ArrayList<Obstacle> obss) {
     for (int j = 0; j < height; j += 10) {
       PVector tempArrow = new PVector(0, 0);
       for (Obstacle tempOb : obss) {
-        PVector tempPV = tempOb.gravity(new PVector(i, j))
-        {
-          tempArrow.add();
-        }
+        PVector tempPV = tempOb.gravity(new PVector(i, j));
+        if(tempPV != null) tempArrow.add(tempPV);
       }
       stroke(200);
       line(i, j, i + 10 * tempArrow.x, j + 10 * tempArrow.y);

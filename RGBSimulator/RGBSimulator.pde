@@ -108,9 +108,10 @@ void draw() {
 
   //for (int i = 4; i < obstacles.size(); i++) obstacles.get(i).rotate(radians(1));
   for (Obstacle tempOb : obstacles) { 
-      for (Ball tempBall : balls) { //gravity
-        tempBall.speed.add(tempOb.gravity(tempBall.pos));
-      }
+    for (Ball tempBall : balls) { //gravity
+      PVector tempPV = tempOb.gravity(tempBall.pos);
+      if (tempPV != null) tempBall.speed.add(tempPV);
+    }
   }
   for (Ball tempBall : balls) { 
     tempBall.collision(obstacles);
@@ -223,6 +224,29 @@ void keyPressed() {
     //for (Ball tempBall : balls) tempBall.initialize();
     for (Ball tempBall : balls) tempBall.initialize(mouseX, mouseY, random(-5, 5), random(-5, 5), random(10, 10));    
     for (Obstacle tempObs : obstacles) tempObs.drawnCnt = 0;
+    break;
+  case 's': //createGraphics and save image : https://processing.org/reference/createGraphics_.html
+    float zoom = 0.25;
+    PGraphics pg;
+    pg = createGraphics((int)(width * zoom), (int)(height * zoom));
+    pg.beginDraw();
+    pg.background(255);
+    pg.stroke(0);
+    pg.strokeWeight(5);
+    for (Obstacle tempObs : obstacles) {
+      for (int i = 0; i < tempObs.vs.size(); i++) {
+        PVector sp = tempObs.vs.get(i);
+        PVector ep = new PVector(0, 0);
+        if (i == tempObs.vs.size() - 1)  ep = tempObs.vs.get(0);
+        else ep = tempObs.vs.get(i + 1);        
+        pg.line(sp.x * zoom, sp.y * zoom, ep.x * zoom, ep.y * zoom);
+      }
+    }
+    pg.endDraw();
+    //pg.save("data/savedImg.png");
+    pg.save("data/map.png");
+    break;
+  default:
     break;
   }
 }
