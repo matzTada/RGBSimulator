@@ -426,7 +426,7 @@ ArrayList<PVector> getVectorByMatrix(int [][] matrix, PVector s, int lenGiven) {
   //get both edges
   ArrayList<PVector> path = new ArrayList<PVector>();
   ArrayList<PVector> vertex = new ArrayList<PVector>();
-  println("s: " + s);
+  //println("s: " + s);
   if (recursiveAlongPath(s, s, matrix, lenGiven, path, vertex)) {
     //println("s: " + s);
   }
@@ -443,4 +443,53 @@ ArrayList<PVector> getVectorByMatrix(int [][] matrix, PVector s, int lenGiven) {
   }
 
   return vertex;
+}
+
+ArrayList<ArrayList<PVector>> getPolygonVectorFromImage(PImage image, int scopedLength, float judgeAngle, int maxSeekLength) {
+  initializeFilter();
+
+  //thinning
+  boolean tsub1Flag = true;
+  boolean tsub2Flag = true;
+  while (true) {
+    tsub1Flag = thinningSub1(image);
+    if (!tsub1Flag) break;
+    tsub2Flag = thinningSub2(image);
+    if (!tsub2Flag) break;
+  }
+
+  //deburring
+  while (deburring(image)); //can be used for getting polygon
+
+  //arrange edge matrix 
+  int [][] edgeMatrix = new int[image.width][image.height]; //matrix to hold edge data
+  int totalBlackCell = 0;
+  image.loadPixels(); 
+  for (int j = 0; j < image.height; j++) {
+    for (int i = 0; i < image.width; i++) {
+      int loc = i + j*image.width;      // The functions red(), green(), and blue() pull out the 3 color components from a pixel.
+      if (image.pixels[loc] == color(0)) { 
+        edgeMatrix[i][j] = 1;
+        if (judgeEdgeByAngle(image, new PVector(i, j), scopedLength, judgeAngle)) edgeMatrix[i][j]  = 2;  //(image, starting point. scoped length, judgeAngle
+        totalBlackCell++;
+      } else edgeMatrix[i][j] = 0;
+    }
+  }
+  //println("totalBlackCell: " + totalBlackCell);
+
+  //convert matrix to PVector array
+  ArrayList<ArrayList<PVector>> returnVss = new ArrayList<ArrayList<PVector>>();
+  image.loadPixels(); 
+  for (int j = 0; j < image.height; j++) {
+    for (int i = 0; i < image.width; i++) {
+      if (edgeMatrix[i][j] == 2) { 
+        ArrayList<PVector> vs = new ArrayList<PVector>();
+        vs = getVectorByMatrix(edgeMatrix, new PVector(i, j), maxSeekLength);
+        returnVss.add(vs);
+        //println("vs.size(): " + vs.size());
+        //new object should be here
+      }
+    }
+  }
+  return returnVss;
 }
