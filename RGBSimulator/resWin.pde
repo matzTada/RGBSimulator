@@ -28,9 +28,9 @@ public class SecondApplet extends PApplet {
     for (int i = 0; i < obstacles.size(); i++) {
       fill(255 );      
       rect((float)i * width / (float)obstacles.size(), height, width / (float)obstacles.size(), -(float)obstacles.get(i).drawnCnt / (float)totalBall * height);
-      println((float)i * width / (float)obstacles.size());
+      //println((float)i * width / (float)obstacles.size());
     }
     
-    println(totalBall);
+    //println(totalBall);
   }
 }

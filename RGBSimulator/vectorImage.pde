@@ -222,17 +222,18 @@ boolean deburring(PImage image) {     //trimming
   return returnFlag;
 }
 
-boolean recursiveSeekConnectedPath(PVector pos, int[][] matrix, int lenGiven, ArrayList<PVector> path) {
+boolean recursiveSeekConnectedPath(PVector pos, PImage image, int[][] matrix, int lenGiven, ArrayList<PVector> path) {
   if (path.size() >= lenGiven) { 
     return true;
   }
   boolean getFlag = false;
   for (int j = -1; j <= 1; j++) {
     for (int i = -1; i <= 1; i++) {
+      if(pos.x + i < 0 || image.width <= pos.x + i || pos.y + j < 0 || image.height <= pos.y + j)continue;
       if (matrix[(int)pos.x + i][(int)pos.y + j] == 1) {
         matrix[(int)pos.x + i][(int)pos.y + j] = 2;
         path.add(new PVector((int)pos.x + i, (int)pos.y + j));
-        getFlag = recursiveSeekConnectedPath(new PVector((int)pos.x + i, (int)pos.y + j), matrix, lenGiven, path);
+        getFlag = recursiveSeekConnectedPath(new PVector((int)pos.x + i, (int)pos.y + j), image, matrix, lenGiven, path);
         if (getFlag) break;
         path.remove(path.size() - 1);
         matrix[(int)pos.x + i][(int)pos.y + j] = 1;
