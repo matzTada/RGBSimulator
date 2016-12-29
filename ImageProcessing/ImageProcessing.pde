@@ -3,7 +3,7 @@
 //based on tutorial https://processing.org/tutorials/pixels/
 
 PImage img;
-ArrayList<PVector> edges = new ArrayList<PVector>();
+//ArrayList<PVector> edges = new ArrayList<PVector>();
 ArrayList<ArrayList<PVector>> vss = new ArrayList<ArrayList<PVector>>();
 
 void setup() {

@@ -1,4 +1,4 @@
-//2016/12/28 TadaMatz //<>//
+//2016/12/28 TadaMatz
 //reference http://www.ice.gunma-ct.ac.jp/~tsurumi/courses/ImagePro/binarization2.pdf
 
 
@@ -222,101 +222,20 @@ boolean deburring(PImage image) {     //trimming
   return returnFlag;
 }
 
-
-
-ArrayList<PVector> judgeEdgeBranch(PImage image) {     //judge edge branch
-  ArrayList<PVector> returnEdges = new ArrayList<PVector>();
-  image.loadPixels(); 
-  for (int y = 1; y < image.height-1; y++) {
-    for (int x = 1; x < image.width-1; x++) {
-      int loc = x + y*image.width;      // The functions red(), green(), and blue() pull out the 3 color components from a pixel.
-      if (image.pixels[loc] == color(0)) { //if black
-        int rastaMatrix[][] = new int[3][3];
-        for (int i = -1; i <= 1; i++) 
-          for (int j = -1; j <= 1; j++) 
-            if (image.pixels[loc + i + j*image.width] == color(0)) rastaMatrix[i+1][j+1] = 1;
-            else rastaMatrix[i+1][j+1] = 0;
-
-        boolean judgeFlag= false;
-        for (int[][] tempFilter : edgefilter) 
-          if (judgeRastaMatrix(rastaMatrix, tempFilter, 3)) 
-            judgeFlag = true;
-        for (int[][] tempFilter : branchfilter) 
-          if (judgeRastaMatrix(rastaMatrix, tempFilter, 3)) 
-            judgeFlag = true;
-
-
-        if (judgeFlag) {
-          image.pixels[loc] = color(255, 0, 0);
-          returnEdges.add(new PVector(x, y));
-        } else {
-          image.pixels[loc] = color(0);
-        }
-      }
-    }
-  }
-  return returnEdges;
-}
-
-
-boolean judgeConnectivity(PImage image, PVector start, PVector end) {     //judge edge branch
-  boolean returnFlag = false;
-  image.loadPixels(); 
-
-  PVector dv = PVector.sub(end, start);
-
-  float a = dv.y;
-  float b = -dv.x;
-  float c = dv.x * start.y - dv.y * start.x;     
-
-  int picCnt = 0;
-  int lineCnt = 0;
-
-  for (int j = (int)min(start.y, end.y); j <= (int)max(start.y, end.y); j++) {
-    for (int i = (int)min(start.x, end.x); i <= (int)max(start.x, end.x); i++) {
-      if (getDistBetweenLinePoint(dv, start, new PVector(i, j)) <= 1) {
-        //if (abs(a * i + b * j + c) <= 100) {
-        lineCnt++;
-        int loc = i + j*image.width;
-        if (image.pixels[loc] == color(0)) picCnt++; //if black
-
-        //fill(0, 0, 255, 200);
-        //rect(i * width/img.width, j * height/img.height, (float)width/img.width, (float)height/img.height);
-      }
-    }
-  }
-
-  println(start + " " + end + " " + picCnt + " " + lineCnt + " " + (float)picCnt / lineCnt);
-
-  if ((float)picCnt / lineCnt > 0.3) returnFlag = true;
-
-  return returnFlag;
-}
-
-float getDistBetweenLinePoint(PVector dv, PVector i, PVector p) { //direction vector, the point where the direction vector pass, the point where the directin 
-  //calculate parameter ax + by + c = 0
-  float a = dv.y;
-  float b = -dv.x;
-  float c = dv.x * i.y - dv.y * i.x;
-
-  //calculate dist
-  return abs(a * p.x + b * p.y + c) / sqrt(pow(a, 2) + pow(b, 2));
-}
-
-boolean recursiveSeekConnectedPath(PVector pos, int[][] imgArray, int lenGiven, ArrayList<PVector> path) {
+boolean recursiveSeekConnectedPath(PVector pos, int[][] matrix, int lenGiven, ArrayList<PVector> path) {
   if (path.size() >= lenGiven) { 
     return true;
   }
   boolean getFlag = false;
   for (int j = -1; j <= 1; j++) {
     for (int i = -1; i <= 1; i++) {
-      if (imgArray[(int)pos.x + i][(int)pos.y + j] == 1) {
-        imgArray[(int)pos.x + i][(int)pos.y + j] = 2;
+      if (matrix[(int)pos.x + i][(int)pos.y + j] == 1) {
+        matrix[(int)pos.x + i][(int)pos.y + j] = 2;
         path.add(new PVector((int)pos.x + i, (int)pos.y + j));
-        getFlag = recursiveSeekConnectedPath(new PVector((int)pos.x + i, (int)pos.y + j), imgArray, lenGiven, path);
+        getFlag = recursiveSeekConnectedPath(new PVector((int)pos.x + i, (int)pos.y + j), matrix, lenGiven, path);
         if (getFlag) break;
         path.remove(path.size() - 1);
-        imgArray[(int)pos.x + i][(int)pos.y + j] = 1;
+        matrix[(int)pos.x + i][(int)pos.y + j] = 1;
       }
     }
     if (getFlag) break;
@@ -381,7 +300,7 @@ boolean judgeEdgeByAngle(PImage image, PVector s, int lenGiven, float judgeAngle
       //then get this point(i, j) as a vector
       //println(s + " degree: " + degree);
       fill(255, 0, 0, 200);
-      rect(s.x * width/img.width, s.y * height/img.height, width/img.width, height/img.height);
+      rect(s.x * width/image.width, s.y * height/image.height, width/image.width, height/image.height);
       return true;
     }
   }
@@ -415,9 +334,9 @@ boolean recursiveAlongPath(PVector pos, PVector posGiven, int[][] matrix, int le
   else return false;
 }
 
-ArrayList<PVector> getVectorByMatrix(int [][] matrix, PVector s, int lenGiven) {
-  //for (int j = 0; j < img.height; j++) {
-  //  for (int i = 0; i < img.width; i++) {
+ArrayList<PVector> getVectorFromMatrix(PImage image, int [][] matrix, PVector s, int lenGiven) {
+  //for (int j = 0; j < image.height; j++) {
+  //  for (int i = 0; i < image.width; i++) {
   //    print(matrix[i][j] + " ");
   //  }
   //  println("");
@@ -435,11 +354,11 @@ ArrayList<PVector> getVectorByMatrix(int [][] matrix, PVector s, int lenGiven) {
     if (tempPV == path.get(0)) fill(0, 255, 0, 200);
     else if (tempPV == path.get(path.size()-1)) fill(255, 0, 0, 200); 
     else fill(0, 0, 255, 200);
-    rect(tempPV.x * width/img.width, tempPV.y * height/img.height, width/img.width, height/img.height);
+    rect(tempPV.x * width/image.width, tempPV.y * height/image.height, width/image.width, height/image.height);
   }
   for (PVector tempPV : vertex) {
     fill(255, 165, 0, 200);
-    rect(tempPV.x * width/img.width, tempPV.y * height/img.height, width/img.width, height/img.height);
+    rect(tempPV.x * width/image.width, tempPV.y * height/image.height, width/image.width, height/image.height);
   }
 
   return vertex;
@@ -461,7 +380,7 @@ ArrayList<ArrayList<PVector>> getPolygonVectorFromImage(PImage image, int scoped
   //deburring
   while (deburring(image)); //can be used for getting polygon
 
-  //arrange edge matrix 
+  //judge edge and arrange edge matrix from image
   int [][] edgeMatrix = new int[image.width][image.height]; //matrix to hold edge data
   int totalBlackCell = 0;
   image.loadPixels(); 
@@ -470,7 +389,7 @@ ArrayList<ArrayList<PVector>> getPolygonVectorFromImage(PImage image, int scoped
       int loc = i + j*image.width;      // The functions red(), green(), and blue() pull out the 3 color components from a pixel.
       if (image.pixels[loc] == color(0)) { 
         edgeMatrix[i][j] = 1;
-        if (judgeEdgeByAngle(image, new PVector(i, j), scopedLength, judgeAngle)) edgeMatrix[i][j]  = 2;  //(image, starting point. scoped length, judgeAngle
+        if (judgeEdgeByAngle(image, new PVector(i, j), scopedLength, judgeAngle)) edgeMatrix[i][j = 2;  //(image, starting point. scoped length, judgeAngle
         totalBlackCell++;
       } else edgeMatrix[i][j] = 0;
     }
@@ -484,7 +403,7 @@ ArrayList<ArrayList<PVector>> getPolygonVectorFromImage(PImage image, int scoped
     for (int i = 0; i < image.width; i++) {
       if (edgeMatrix[i][j] == 2) { 
         ArrayList<PVector> vs = new ArrayList<PVector>();
-        vs = getVectorByMatrix(edgeMatrix, new PVector(i, j), maxSeekLength);
+        vs = getVectorFromMatrix(image, edgeMatrix, new PVector(i, j), maxSeekLength);
         returnVss.add(vs);
         //println("vs.size(): " + vs.size());
         //new object should be here
@@ -493,3 +412,84 @@ ArrayList<ArrayList<PVector>> getPolygonVectorFromImage(PImage image, int scoped
   }
   return returnVss;
 }
+
+
+
+//ArrayList<PVector> judgeEdgeBranch(PImage image) {     //judge edge branch
+//  ArrayList<PVector> returnEdges = new ArrayList<PVector>();
+//  image.loadPixels(); 
+//  for (int y = 1; y < image.height-1; y++) {
+//    for (int x = 1; x < image.width-1; x++) {
+//      int loc = x + y*image.width;      // The functions red(), green(), and blue() pull out the 3 color components from a pixel.
+//      if (image.pixels[loc] == color(0)) { //if black
+//        int rastaMatrix[][] = new int[3][3];
+//        for (int i = -1; i <= 1; i++) 
+//          for (int j = -1; j <= 1; j++) 
+//            if (image.pixels[loc + i + j*image.width] == color(0)) rastaMatrix[i+1][j+1] = 1;
+//            else rastaMatrix[i+1][j+1] = 0;
+
+//        boolean judgeFlag= false;
+//        for (int[][] tempFilter : edgefilter) 
+//          if (judgeRastaMatrix(rastaMatrix, tempFilter, 3)) 
+//            judgeFlag = true;
+//        for (int[][] tempFilter : branchfilter) 
+//          if (judgeRastaMatrix(rastaMatrix, tempFilter, 3)) 
+//            judgeFlag = true;
+
+
+//        if (judgeFlag) {
+//          image.pixels[loc] = color(255, 0, 0);
+//          returnEdges.add(new PVector(x, y));
+//        } else {
+//          image.pixels[loc] = color(0);
+//        }
+//      }
+//    }
+//  }
+//  return returnEdges;
+//}
+
+
+//boolean judgeConnectivity(PImage image, PVector start, PVector end) {     //judge edge branch
+//  boolean returnFlag = false;
+//  image.loadPixels(); 
+
+//  PVector dv = PVector.sub(end, start);
+
+//  float a = dv.y;
+//  float b = -dv.x;
+//  float c = dv.x * start.y - dv.y * start.x;     
+
+//  int picCnt = 0;
+//  int lineCnt = 0;
+
+//  for (int j = (int)min(start.y, end.y); j <= (int)max(start.y, end.y); j++) {
+//    for (int i = (int)min(start.x, end.x); i <= (int)max(start.x, end.x); i++) {
+//      if (getDistBetweenLinePoint(dv, start, new PVector(i, j)) <= 1) {
+//        //if (abs(a * i + b * j + c) <= 100) {
+//        lineCnt++;
+//        int loc = i + j*image.width;
+//        if (image.pixels[loc] == color(0)) picCnt++; //if black
+
+//        //fill(0, 0, 255, 200);
+//        //rect(i * width/image.width, j * height/image.height, (float)width/image.width, (float)height/image.height);
+//      }
+//    }
+//  }
+
+//  println(start + " " + end + " " + picCnt + " " + lineCnt + " " + (float)picCnt / lineCnt);
+
+//  if ((float)picCnt / lineCnt > 0.3) returnFlag = true;
+
+//  return returnFlag;
+//}
+
+//float getDistBetweenLinePoint(PVector dv, PVector i, PVector p) { //direction vector, the point where the direction vector pass, the point where the directin 
+//  //calculate parameter ax + by + c = 0
+//  float a = dv.y;
+//  float b = -dv.x;
+//  float c = dv.x * i.y - dv.y * i.x;
+
+//  //calculate dist
+//  return abs(a * p.x + b * p.y + c) / sqrt(pow(a, 2) + pow(b, 2));
+//}
