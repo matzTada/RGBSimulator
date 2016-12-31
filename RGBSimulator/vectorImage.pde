@@ -151,6 +151,7 @@ boolean thinningSub1(PImage image) {     //Thinning subprocess 1
       }
     }
   }
+  image.updatePixels();
   return returnFlag;
 }
 
@@ -188,6 +189,7 @@ boolean thinningSub2(PImage image) {     //Thinning subprocess 2
       }
     }
   }
+  image.updatePixels();
   return returnFlag;
 }
 
@@ -219,6 +221,7 @@ boolean deburring(PImage image) {     //trimming
       }
     }
   }
+  image.updatePixels();
   return returnFlag;
 }
 
@@ -229,7 +232,7 @@ boolean recursiveSeekConnectedPath(PVector pos, PImage image, int[][] matrix, in
   boolean getFlag = false;
   for (int j = -1; j <= 1; j++) {
     for (int i = -1; i <= 1; i++) {
-      if(pos.x + i < 0 || image.width <= pos.x + i || pos.y + j < 0 || image.height <= pos.y + j)continue;
+      if (pos.x + i < 0 || image.width <= pos.x + i || pos.y + j < 0 || image.height <= pos.y + j)continue;
       if (matrix[(int)pos.x + i][(int)pos.y + j] == 1) {
         matrix[(int)pos.x + i][(int)pos.y + j] = 2;
         path.add(new PVector((int)pos.x + i, (int)pos.y + j));
@@ -269,7 +272,7 @@ boolean judgeEdgeByAngle(PImage image, PVector s, int lenGiven, float judgeAngle
   //get both edges
   ArrayList<PVector> returnPath = new ArrayList<PVector>();
   ArrayList<PVector> path1 = new ArrayList<PVector>();
-  if (recursiveSeekConnectedPath(s, imageArray, lenGiven, path1)) {
+  if (recursiveSeekConnectedPath(s, image, imageArray, lenGiven, path1)) {
     //println("s: " + s + " l: " + path1.get(path1.size() - 1));
   }
   returnPath.addAll(path1);
@@ -282,7 +285,7 @@ boolean judgeEdgeByAngle(PImage image, PVector s, int lenGiven, float judgeAngle
   //}
 
   ArrayList<PVector> path2 = new ArrayList<PVector>();
-  if (recursiveSeekConnectedPath(s, imageArray, lenGiven, path2)) {
+  if (recursiveSeekConnectedPath(s, image, imageArray, lenGiven, path2)) {
     //println("s: " + s + " l: " + path2.get(path2.size() - 1));
   }
   returnPath.addAll(path2);
@@ -309,19 +312,20 @@ boolean judgeEdgeByAngle(PImage image, PVector s, int lenGiven, float judgeAngle
 }
 
 
-boolean recursiveAlongPath(PVector pos, PVector posGiven, int[][] matrix, int lenGiven, ArrayList<PVector> path, ArrayList<PVector> vertex) {
+boolean recursiveAlongPath(PVector pos, PVector posGiven, PImage image, int[][] matrix, int lenGiven, ArrayList<PVector> path, ArrayList<PVector> vertex) {
   if (path.size() >= lenGiven || (path.size() > 2 && pos.x == posGiven.x && pos.y == posGiven.y)) { 
     return true;
   }
   boolean getFlag = false;
   for (int j = -1; j <= 1; j++) {
     for (int i = -1; i <= 1; i++) {
+      if (pos.x + i < 0 || image.width <= pos.x + i || pos.y + j < 0 || image.height <= pos.y + j)continue;
       if (matrix[(int)pos.x + i][(int)pos.y + j] == 1 || matrix[(int)pos.x + i][(int)pos.y + j] == 2) {
         PVector nextPV = new PVector((int)pos.x + i, (int)pos.y + j);
         path.add(nextPV);
         if (matrix[(int)pos.x + i][(int)pos.y + j] == 2) vertex.add(nextPV);
         matrix[(int)pos.x + i][(int)pos.y + j] = 3;
-        getFlag = recursiveAlongPath(new PVector((int)pos.x + i, (int)pos.y + j), posGiven, matrix, lenGiven, path, vertex);
+        getFlag = recursiveAlongPath(new PVector((int)pos.x + i, (int)pos.y + j), posGiven, image, matrix, lenGiven, path, vertex);
         if (getFlag) break;
         path.remove(path.size() - 1);
         if (matrix[(int)pos.x + i][(int)pos.y + j] == 2) vertex.remove(vertex.size() - 1);
@@ -347,7 +351,7 @@ ArrayList<PVector> getVectorFromMatrix(PImage image, int [][] matrix, PVector s,
   ArrayList<PVector> path = new ArrayList<PVector>();
   ArrayList<PVector> vertex = new ArrayList<PVector>();
   //println("s: " + s);
-  if (recursiveAlongPath(s, s, matrix, lenGiven, path, vertex)) {
+  if (recursiveAlongPath(s, s, image, matrix, lenGiven, path, vertex)) {
     //println("s: " + s);
   }
 
@@ -368,19 +372,43 @@ ArrayList<PVector> getVectorFromMatrix(PImage image, int [][] matrix, PVector s,
 ArrayList<ArrayList<PVector>> getPolygonVectorFromImage(PImage image, int scopedLength, float judgeAngle, int maxSeekLength) {
   initializeFilter();
 
+  //pre-processing binalizing
+  image.loadPixels();
+  for (int j = 0; j < image.height; j++) {
+    for (int i = 0; i < image.width; i++) {
+      int loc = i + j*image.width;      // The functions red(), green(), and blue() pull out the 3 color components from a pixel.
+      if (image.pixels[loc] != color(255)) {
+        image.pixels[loc] = color(0);
+        fill(255);
+        rect(i * width/image.width, j * height/image.height, width/image.width, height/image.height);
+      }
+    }
+  }
+  image.updatePixels();
+  image(image, 0, 0, width, height);
+  redraw();
+
+  println("thinning");
+  int loopCnt = 0;
   //thinning
   boolean tsub1Flag = true;
   boolean tsub2Flag = true;
   while (true) {
+    println("loop: " + loopCnt++);
     tsub1Flag = thinningSub1(image);
     if (!tsub1Flag) break;
     tsub2Flag = thinningSub2(image);
     if (!tsub2Flag) break;
   }
 
+  println("deburring");
+  loopCnt = 0;
   //deburring
-  while (deburring(image)); //can be used for getting polygon
+  while (deburring(image)) {
+    println("loop: " + loopCnt++);
+  } //can be used for getting polygon
 
+  println("prepare edgematrix");
   //judge edge and arrange edge matrix from image
   int [][] edgeMatrix = new int[image.width][image.height]; //matrix to hold edge data
   int totalBlackCell = 0;
@@ -395,8 +423,9 @@ ArrayList<ArrayList<PVector>> getPolygonVectorFromImage(PImage image, int scoped
       } else edgeMatrix[i][j] = 0;
     }
   }
-  //println("totalBlackCell: " + totalBlackCell);
+  println("totalBlackCell: " + totalBlackCell);
 
+  println("convert matrix to PVector array");
   //convert matrix to PVector array
   ArrayList<ArrayList<PVector>> returnVss = new ArrayList<ArrayList<PVector>>();
   image.loadPixels(); 
@@ -406,6 +435,7 @@ ArrayList<ArrayList<PVector>> getPolygonVectorFromImage(PImage image, int scoped
         ArrayList<PVector> vs = new ArrayList<PVector>();
         vs = getVectorFromMatrix(image, edgeMatrix, new PVector(i, j), maxSeekLength);
         returnVss.add(vs);
+        println("vs.size(): " + vs.size());
         //println("vs.size(): " + vs.size());
         //new object should be here
       }

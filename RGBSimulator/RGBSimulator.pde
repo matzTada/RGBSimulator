@@ -30,14 +30,14 @@ void setup() {
   //ball
   for (int i = 0; i < 500; i++)  balls.add(new Ball(width/2, height/2, random(-5, 5), random(-5, 5), random(10, 10)));
 
-  //get obstacles from image
-  loadedImg = loadImage("data/map.png");
-  ArrayList<ArrayList<PVector>> vss = getPolygonVectorFromImage(loadedImg, 10, 170, 1000);
-  for (ArrayList<PVector> tempVS : vss) {
-    for (PVector tempPV : tempVS) 
-      tempPV.set(tempPV.x * width/loadedImg.width, tempPV.y * height/loadedImg.height);
-    obstacles.add(new Obstacle(tempVS));
-  }
+  ////get obstacles from image
+  //loadedImg = loadImage("data/map.png");
+  //ArrayList<ArrayList<PVector>> vss = getPolygonVectorFromImage(loadedImg, 10, 170, 1000);
+  //for (ArrayList<PVector> tempVS : vss) {
+  //  for (PVector tempPV : tempVS) 
+  //    tempPV.set(tempPV.x * width/loadedImg.width, tempPV.y * height/loadedImg.height);
+  //  obstacles.add(new Obstacle(tempVS));
+  //}
 
   //ArrayList<PVector> vs = new ArrayList<PVector>();
   ////object wall
@@ -98,6 +98,17 @@ void setup() {
 
 void draw() {
   background(127);
+
+  //get obstacles from image
+  loadedImg = loadImage("data/map.png");
+  ArrayList<ArrayList<PVector>> vss = getPolygonVectorFromImage(loadedImg, 10, 170, 1000);
+  for (ArrayList<PVector> tempVS : vss) {
+    for (PVector tempPV : tempVS) 
+      tempPV.set(tempPV.x * width/loadedImg.width, tempPV.y * height/loadedImg.height);
+    obstacles.add(new Obstacle(tempVS));
+  }
+
+  noLoop();
 
   drawGravityField(obstacles);
 
