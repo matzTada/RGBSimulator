@@ -21,7 +21,7 @@ void settings() {
 
 void setup() {
   //Res window setup
-  ResWindowSetup();
+  //ResWindowSetup();
 
   //init arrays
   balls = new ArrayList<Ball>();
@@ -29,6 +29,16 @@ void setup() {
 
   //ball
   for (int i = 0; i < 500; i++)  balls.add(new Ball(width/2, height/2, random(-5, 5), random(-5, 5), random(10, 10)));
+
+  //get obstacles from image
+  loadedImg = loadImage("data/map.png");
+  ArrayList<ArrayList<PVector>> vss = getPolygonVectorFromImage(loadedImg, 10, 170, 500);
+  for (ArrayList<PVector> tempVS : vss) {
+    for (PVector tempPV : tempVS) 
+      tempPV.set(tempPV.x * width/loadedImg.width, tempPV.y * height/loadedImg.height);
+    obstacles.add(new Obstacle(tempVS));
+  }
+
 
   ////get obstacles from image
   //loadedImg = loadImage("data/map.png");
@@ -99,16 +109,7 @@ void setup() {
 void draw() {
   background(127);
 
-  //get obstacles from image
-  loadedImg = loadImage("data/map.png");
-  ArrayList<ArrayList<PVector>> vss = getPolygonVectorFromImage(loadedImg, 10, 170, 1000);
-  for (ArrayList<PVector> tempVS : vss) {
-    for (PVector tempPV : tempVS) 
-      tempPV.set(tempPV.x * width/loadedImg.width, tempPV.y * height/loadedImg.height);
-    obstacles.add(new Obstacle(tempVS));
-  }
-
-  noLoop();
+  //noLoop();
 
   drawGravityField(obstacles);
 
@@ -243,7 +244,7 @@ void keyPressed() {
     pg.beginDraw();
     pg.background(255);
     pg.stroke(0);
-    pg.strokeWeight(5);
+    pg.strokeWeight(1);
     for (Obstacle tempObs : obstacles) {
       for (int i = 0; i < tempObs.vs.size(); i++) {
         PVector sp = tempObs.vs.get(i);

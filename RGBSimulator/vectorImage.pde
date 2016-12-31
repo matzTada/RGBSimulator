@@ -142,8 +142,8 @@ boolean thinningSub1(PImage image) {     //Thinning subprocess 1
               deleteFlag = true;
 
         if (deleteFlag) {
-          image.pixels[loc] = color(200);
-          //image.pixels[loc] = color(255);
+          //image.pixels[loc] = color(200);
+          image.pixels[loc] = color(255);
           returnFlag = true;
         } else {
           image.pixels[loc] = color(0);
@@ -180,8 +180,8 @@ boolean thinningSub2(PImage image) {     //Thinning subprocess 2
               deleteFlag = true;
 
         if (deleteFlag) {
-          image.pixels[loc] = color(200);
-          //image.pixels[loc] = color(255);
+          //image.pixels[loc] = color(200);
+          image.pixels[loc] = color(255);
           returnFlag = true;
         } else {
           image.pixels[loc] = color(0);
@@ -313,30 +313,70 @@ boolean judgeEdgeByAngle(PImage image, PVector s, int lenGiven, float judgeAngle
 
 
 boolean recursiveAlongPath(PVector pos, PVector posGiven, PImage image, int[][] matrix, int lenGiven, ArrayList<PVector> path, ArrayList<PVector> vertex) {
-  if (path.size() >= lenGiven || (path.size() > 2 && pos.x == posGiven.x && pos.y == posGiven.y)) { 
-    return true;
-  }
+  int x = (int)pos.x;
+  int y = (int)pos.y;
+  //println(str(x) + " " + str(y));
   boolean getFlag = false;
-  for (int j = -1; j <= 1; j++) {
-    for (int i = -1; i <= 1; i++) {
-      if (pos.x + i < 0 || image.width <= pos.x + i || pos.y + j < 0 || image.height <= pos.y + j)continue;
-      if (matrix[(int)pos.x + i][(int)pos.y + j] == 1 || matrix[(int)pos.x + i][(int)pos.y + j] == 2) {
-        PVector nextPV = new PVector((int)pos.x + i, (int)pos.y + j);
-        path.add(nextPV);
-        if (matrix[(int)pos.x + i][(int)pos.y + j] == 2) vertex.add(nextPV);
-        matrix[(int)pos.x + i][(int)pos.y + j] = 3;
-        getFlag = recursiveAlongPath(new PVector((int)pos.x + i, (int)pos.y + j), posGiven, image, matrix, lenGiven, path, vertex);
-        if (getFlag) break;
-        path.remove(path.size() - 1);
-        if (matrix[(int)pos.x + i][(int)pos.y + j] == 2) vertex.remove(vertex.size() - 1);
-        matrix[(int)pos.x + i][(int)pos.y + j] = 1;
+  if (path.size() > lenGiven || (path.size() > 2 && x == (int)posGiven.x && y == (int)posGiven.y)) { 
+    getFlag = true;
+    println("path: " + path);
+    println("vertex: " + vertex);
+  }
+  if (!getFlag) {
+    for (int j = -1; j <= 1; j++) {
+      for (int i = -1; i <= 1; i++) {
+        if (i == 0 && j == 0) continue;
+        pos.add(new PVector(i, j));
+        //println("pos: " + pos);
+        if (x < 0 || image.width <= x || y < 0 || image.height <= y) {
+        } else if (matrix[x][y] == 1 || matrix[x][y] == 2) {
+          PVector nextPV = new PVector(x, y);
+          path.add(nextPV);
+          if (matrix[x][y] == 2) { 
+            vertex.add(nextPV);
+            matrix[x][y] = 4;
+          } else {
+            matrix[x][y] = 3;
+          }
+          getFlag = recursiveAlongPath(pos, posGiven, image, matrix, lenGiven, path, vertex);
+          if (getFlag) {
+            break;
+          }
+          path.remove(path.size() - 1);
+          if (matrix[x][y] == 4) { 
+            vertex.remove(vertex.size() - 1);
+            matrix[x][y] = 2;
+            //matrix[x][y] = 1;
+          } else {
+            matrix[x][y] = 1;
+          }
+        }
+        pos.sub(new PVector(i, j));
+
+        //past
+        //if (pos.x + i < 0 || image.width <= pos.x + i || pos.y + j < 0 || image.height <= pos.y + j) continue;
+        //if (matrix[(int)pos.x + i][(int)pos.y + j] == 1 || matrix[(int)pos.x + i][(int)pos.y + j] == 2) {
+        //  PVector nextPV = new PVector((int)pos.x + i, (int)pos.y + j);
+        //  path.add(nextPV);
+        //  if (matrix[(int)pos.x + i][(int)pos.y + j] == 2) vertex.add(nextPV);
+        //  matrix[(int)pos.x + i][(int)pos.y + j] = 3;
+        //  //println("rAP:" + pos.x + " " + pos.y);
+        //  getFlag = recursiveAlongPath(new PVector((int)pos.x + i, (int)pos.y + j), posGiven, image, matrix, lenGiven, path, vertex);
+        //  if (getFlag) break;
+        //  path.remove(path.size() - 1);
+        //  if (matrix[(int)pos.x + i][(int)pos.y + j] == 2) vertex.remove(vertex.size() - 1);
+        //  matrix[(int)pos.x + i][(int)pos.y + j] = 1;
+        //}
       }
+      if (getFlag) break;
     }
-    if (getFlag) break;
   }
 
-  if (getFlag) return true;
-  else return false;
+  if (getFlag) { 
+    return true;
+  } else {
+    return false;
+  }
 }
 
 ArrayList<PVector> getVectorFromMatrix(PImage image, int [][] matrix, PVector s, int lenGiven) {
@@ -351,7 +391,7 @@ ArrayList<PVector> getVectorFromMatrix(PImage image, int [][] matrix, PVector s,
   ArrayList<PVector> path = new ArrayList<PVector>();
   ArrayList<PVector> vertex = new ArrayList<PVector>();
   //println("s: " + s);
-  if (recursiveAlongPath(s, s, image, matrix, lenGiven, path, vertex)) {
+  if (recursiveAlongPath(s, new PVector(s.x, s.y), image, matrix, lenGiven, path, vertex)) {
     //println("s: " + s);
   }
 
@@ -366,6 +406,8 @@ ArrayList<PVector> getVectorFromMatrix(PImage image, int [][] matrix, PVector s,
     rect(tempPV.x * width/image.width, tempPV.y * height/image.height, width/image.width, height/image.height);
   }
 
+  redraw();
+
   return vertex;
 }
 
@@ -374,10 +416,18 @@ ArrayList<ArrayList<PVector>> getPolygonVectorFromImage(PImage image, int scoped
 
   //pre-processing binalizing
   image.loadPixels();
+  for (int i = 0; i < image.width; i++) image.pixels[i + (0)*image.width] = color(255);
+  for (int i = 0; i < image.width; i++) image.pixels[i + (image.height-1)*image.width] = color(255);
+  for (int j = 0; j < image.height; j++) image.pixels[0 + j*image.width] = color(255);
+  for (int j = 0; j < image.height; j++) image.pixels[(image.width-1) + j*image.width] = color(255);
+  image.updatePixels();
+
+  //pre-processing binalizing
+  image.loadPixels();
   for (int j = 0; j < image.height; j++) {
     for (int i = 0; i < image.width; i++) {
       int loc = i + j*image.width;      // The functions red(), green(), and blue() pull out the 3 color components from a pixel.
-      if (image.pixels[loc] != color(255)) {
+      if (image.pixels[loc] <= color(100)) {
         image.pixels[loc] = color(0);
         fill(255);
         rect(i * width/image.width, j * height/image.height, width/image.width, height/image.height);
@@ -385,8 +435,6 @@ ArrayList<ArrayList<PVector>> getPolygonVectorFromImage(PImage image, int scoped
     }
   }
   image.updatePixels();
-  image(image, 0, 0, width, height);
-  redraw();
 
   println("thinning");
   int loopCnt = 0;
@@ -432,6 +480,7 @@ ArrayList<ArrayList<PVector>> getPolygonVectorFromImage(PImage image, int scoped
   for (int j = 0; j < image.height; j++) {
     for (int i = 0; i < image.width; i++) {
       if (edgeMatrix[i][j] == 2) { 
+        println("edge: " + i + " " + j);
         ArrayList<PVector> vs = new ArrayList<PVector>();
         vs = getVectorFromMatrix(image, edgeMatrix, new PVector(i, j), maxSeekLength);
         returnVss.add(vs);
@@ -444,7 +493,27 @@ ArrayList<ArrayList<PVector>> getPolygonVectorFromImage(PImage image, int scoped
   return returnVss;
 }
 
-
+void savePImageToFile(){
+  float zoom = 0.25;
+    PGraphics pg;
+    pg = createGraphics((int)(width * zoom), (int)(height * zoom));
+    pg.beginDraw();
+    pg.background(255);
+    pg.stroke(0);
+    pg.strokeWeight(1);
+    for (Obstacle tempObs : obstacles) {
+      for (int i = 0; i < tempObs.vs.size(); i++) {
+        PVector sp = tempObs.vs.get(i);
+        PVector ep = new PVector(0, 0);
+        if (i == tempObs.vs.size() - 1)  ep = tempObs.vs.get(0);
+        else ep = tempObs.vs.get(i + 1);        
+        pg.line(sp.x * zoom, sp.y * zoom, ep.x * zoom, ep.y * zoom);
+      }
+    }
+    pg.endDraw();
+    //pg.save("data/savedImg.png");
+    pg.save("data/map.png");
+}
 
 //ArrayList<PVector> judgeEdgeBranch(PImage image) {     //judge edge branch
 //  ArrayList<PVector> returnEdges = new ArrayList<PVector>();
