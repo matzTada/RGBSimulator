@@ -21,7 +21,7 @@ void settings() {
 
 void setup() {
   //Res window setup
-  //ResWindowSetup();
+  ResWindowSetup();
 
   //init arrays
   balls = new ArrayList<Ball>();
