@@ -269,7 +269,7 @@ boolean judgeEdgeByAngle(PImage image, PVector s, int lenGiven, float judgeAngle
   //get both edges
   ArrayList<PVector> returnPath = new ArrayList<PVector>();
   ArrayList<PVector> path1 = new ArrayList<PVector>();
-  if (recursiveSeekConnectedPath(s, imageArray, lenGiven, path1)) {
+  if (recursiveSeekConnectedPath(s, image, imageArray, lenGiven, path1)) {
     //println("s: " + s + " l: " + path1.get(path1.size() - 1));
   }
   returnPath.addAll(path1);
@@ -282,7 +282,7 @@ boolean judgeEdgeByAngle(PImage image, PVector s, int lenGiven, float judgeAngle
   //}
 
   ArrayList<PVector> path2 = new ArrayList<PVector>();
-  if (recursiveSeekConnectedPath(s, imageArray, lenGiven, path2)) {
+  if (recursiveSeekConnectedPath(s, image, imageArray, lenGiven, path2)) {
     //println("s: " + s + " l: " + path2.get(path2.size() - 1));
   }
   returnPath.addAll(path2);
