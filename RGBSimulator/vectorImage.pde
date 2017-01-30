@@ -78,20 +78,20 @@ void initializeFilter() {
 
   //deburring
   deburringfilter.add(new int[][]{{1, 0, 0}, {0, 1, 0}, {0, 0, 0}});
-  deburringfilter.add(new int[][]{{2, 1, 2}, {0, 1, 0}, {0, 0, 0}});
   deburringfilter.add(new int[][]{{0, 0, 1}, {0, 1, 0}, {0, 0, 0}});
-  deburringfilter.add(new int[][]{{2, 0, 0}, {1, 1, 0}, {2, 0, 0}});
   deburringfilter.add(new int[][]{{0, 0, 0}, {0, 1, 0}, {0, 0, 0}});
-  deburringfilter.add(new int[][]{{0, 0, 2}, {0, 1, 1}, {0, 0, 2}});
   deburringfilter.add(new int[][]{{0, 0, 0}, {0, 1, 0}, {1, 0, 0}});
-  deburringfilter.add(new int[][]{{0, 0, 0}, {0, 1, 0}, {2, 1, 2}});
   deburringfilter.add(new int[][]{{0, 0, 0}, {0, 1, 0}, {0, 0, 1}}); 
+  deburringfilter.add(new int[][]{{2, 1, 2}, {0, 1, 0}, {0, 0, 0}});
+  deburringfilter.add(new int[][]{{2, 0, 0}, {1, 1, 0}, {2, 0, 0}});
+  deburringfilter.add(new int[][]{{0, 0, 2}, {0, 1, 1}, {0, 0, 2}});
+  deburringfilter.add(new int[][]{{0, 0, 0}, {0, 1, 0}, {2, 1, 2}});
 
-  deburringfilter.add(new int[][]{{2, 1, 2}, {1, 1, 0}, {2, 0, 0}});
-  deburringfilter.add(new int[][]{{2, 1, 2}, {0, 1, 1}, {0, 0, 2}});
-  deburringfilter.add(new int[][]{{2, 0, 0}, {1, 1, 0}, {2, 1, 2}});
-  deburringfilter.add(new int[][]{{0, 0, 2}, {0, 1, 1}, {2, 1, 2}});
 
+//  deburringfilter.add(new int[][]{{1, 1, 1}, {0, 1, 0}, {0, 0, 0}});
+//  deburringfilter.add(new int[][]{{1, 0, 0}, {1, 1, 0}, {1, 0, 0}});
+//  deburringfilter.add(new int[][]{{0, 0, 0}, {0, 1, 0}, {1, 1, 1}});
+//  deburringfilter.add(new int[][]{{0, 0, 1}, {0, 1, 1}, {0, 0, 1}});
 
   //edge
   edgefilter.add(new int[][]{{0, 0, 0 }, {0, 1, 0 }, {2, 1, 2 }});
@@ -412,6 +412,7 @@ ArrayList<PVector> getVectorFromMatrix(PImage image, int [][] matrix, PVector s,
 }
 
 ArrayList<ArrayList<PVector>> getPolygonVectorFromImage(PImage image, int scopedLength, float judgeAngle, int maxSeekLength) {
+  int fileCnt = 0;
   initializeFilter();
 
   //pre-processing binalizing
@@ -427,7 +428,7 @@ ArrayList<ArrayList<PVector>> getPolygonVectorFromImage(PImage image, int scoped
   for (int j = 0; j < image.height; j++) {
     for (int i = 0; i < image.width; i++) {
       int loc = i + j*image.width;      // The functions red(), green(), and blue() pull out the 3 color components from a pixel.
-      if (image.pixels[loc] <= color(100)) {
+      if (image.pixels[loc] <= color(200)) {
         image.pixels[loc] = color(0);
         fill(255);
         rect(i * width/image.width, j * height/image.height, width/image.width, height/image.height);
@@ -436,25 +437,31 @@ ArrayList<ArrayList<PVector>> getPolygonVectorFromImage(PImage image, int scoped
   }
   image.updatePixels();
 
+  savePImageToFile(str(fileCnt++) + "_binalized.png", image);
+
   println("thinning");
   int loopCnt = 0;
   //thinning
   boolean tsub1Flag = true;
   boolean tsub2Flag = true;
   while (true) {
-    println("loop: " + loopCnt++);
+    println("thinning: " + loopCnt++);
     tsub1Flag = thinningSub1(image);
     if (!tsub1Flag) break;
     tsub2Flag = thinningSub2(image);
     if (!tsub2Flag) break;
   }
 
+  savePImageToFile(str(fileCnt++) + "_thinned.png", image);
+
   println("deburring");
   loopCnt = 0;
   //deburring
   while (deburring(image)) {
-    println("loop: " + loopCnt++);
+    println("deburring: " + loopCnt++);
   } //can be used for getting polygon
+
+  savePImageToFile(str(fileCnt++) + "_deburried.png", image);
 
   println("prepare edgematrix");
   //judge edge and arrange edge matrix from image
@@ -493,26 +500,14 @@ ArrayList<ArrayList<PVector>> getPolygonVectorFromImage(PImage image, int scoped
   return returnVss;
 }
 
-void savePImageToFile(){
-  float zoom = 0.25;
-    PGraphics pg;
-    pg = createGraphics((int)(width * zoom), (int)(height * zoom));
-    pg.beginDraw();
-    pg.background(255);
-    pg.stroke(0);
-    pg.strokeWeight(1);
-    for (Obstacle tempObs : obstacles) {
-      for (int i = 0; i < tempObs.vs.size(); i++) {
-        PVector sp = tempObs.vs.get(i);
-        PVector ep = new PVector(0, 0);
-        if (i == tempObs.vs.size() - 1)  ep = tempObs.vs.get(0);
-        else ep = tempObs.vs.get(i + 1);        
-        pg.line(sp.x * zoom, sp.y * zoom, ep.x * zoom, ep.y * zoom);
-      }
-    }
-    pg.endDraw();
-    //pg.save("data/savedImg.png");
-    pg.save("data/map.png");
+void savePImageToFile(String filename, PImage image) {
+  PGraphics pg;
+  pg = createGraphics(image.width, image.height);
+  pg.beginDraw();
+  pg.background(255);
+  pg.image(image, 0, 0, image.width, image.height);
+  pg.endDraw();
+  pg.save("data/" + filename);
 }
 
 //ArrayList<PVector> judgeEdgeBranch(PImage image) {     //judge edge branch

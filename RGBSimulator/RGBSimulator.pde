@@ -244,7 +244,7 @@ void keyPressed() {
     pg.beginDraw();
     pg.background(255);
     pg.stroke(0);
-    pg.strokeWeight(1);
+    pg.strokeWeight(3);
     for (Obstacle tempObs : obstacles) {
       for (int i = 0; i < tempObs.vs.size(); i++) {
         PVector sp = tempObs.vs.get(i);
