@@ -78,7 +78,7 @@ class Ball {
             } else if (tempOb.character == OBJ_CHR_DRAWN) {
               //drawn
               tempOb.drawnCnt++;
-              initialize(mouseX, mouseY, random(-5, 5), random(-5, 5), random(10, 10));    
+              initialize(sourceX, sourceY, random(-5, 5), random(-5, 5), random(10, 10));    
               //initialize();
               return true;
             }

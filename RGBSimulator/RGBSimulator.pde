@@ -15,6 +15,10 @@ PVector posPastMousePressed = new PVector(0, 0);
 
 PImage loadedImg;
 
+int mouseChase = 1;
+int sourceX = width/2;
+int sourceY = height/2;
+
 void settings() {
   size(1200, 800);
 }
@@ -115,6 +119,10 @@ void draw() {
   drawGravityField(obstacles);
 
   //mouse
+  if (mouseChase == 1) {
+    sourceX = mouseX;
+    sourceY = mouseY;
+  }
   //obstacles.get(0).translatePos(mouseX, mouseY);
 
   displayNewObs();
@@ -265,6 +273,9 @@ void keyPressed() {
   case 'c':
     println("clear obstacles");
     obstacles.clear();
+    break;
+  case 'm':
+    mouseChase = 1 - mouseChase;
     break;
   case 's': //createGraphics and save image : https://processing.org/reference/createGraphics_.html
     float zoom = 0.25;
