@@ -33,8 +33,9 @@ class Obstacle {
     for (PVector tempPV : vs)vertex(tempPV.x, tempPV.y);
     endShape(CLOSE);
 
-    fill(255);
     textAlign(CENTER, CENTER);
+    textSize(width/75);
+    fill(255);
     text("ID: " + id + "\n" + drawnCnt, center.x, center.y);
 
     //for (PVector tempVs : vs) {

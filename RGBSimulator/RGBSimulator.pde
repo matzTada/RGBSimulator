@@ -150,8 +150,8 @@ void draw() {
   // visualize bars
   int totalBall = 0;
   for (Obstacle tempOb : obstacles) totalBall += tempOb.drawnCnt;
-  float barsX = 0;
-  float barsY = 0;
+  float barsX = width * 3/4 - 2 * width/40;
+  float barsY = height * 3/4 - 2 * width/40;
   float barsWidth = width/4;
   float barsHeight = height/4;
   for (int i = 0; i < obstacles.size(); i++) {
@@ -163,12 +163,23 @@ void draw() {
     stroke(0);
     rect(tempX, tempY, tempW, tempH);
     textAlign(CENTER, BOTTOM);
+    textSize(width/100);
     fill(0);
     noStroke();
     text("ID: " + obstacles.get(i).id + "\n" + obstacles.get(i).drawnCnt, tempX + tempW / 2, tempY);
-
     //println((float)i * width / (float)obstacles.size());
   }
+  textAlign(RIGHT, TOP);
+  textSize(width/100);
+  fill(0);
+  noStroke();
+  text("totalBall: " + totalBall, barsX + barsWidth, barsY);
+  
+  textAlign(RIGHT, BOTTOM);
+  textSize(width/40);
+  fill(255);
+  noStroke();
+  text("RGB Simulator by Tada Matz", width - 20, height);
 
   //check active ball
   int activeBallCnt = 0;
