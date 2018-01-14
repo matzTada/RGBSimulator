@@ -1,24 +1,14 @@
 # RGBSimulator
 Reflection, Gravity, and Beahavior Simulator 
 
-<a href="http://www.youtube.com/watch?feature=player_embedded&v=YOUTUBE_MOVIE_ID_HERE
-" target="_blank"><img src="http://img.youtube.com/vi/YOUTUBE_MOVIE_ID_HERE/0.jpg" 
+<a href="http://www.youtube.com/watch?feature=player_embedded&v=2gNiQA51ORw
+" target="_blank"><img src="http://img.youtube.com/vi/2gNiQA51ORw/0.jpg" 
 alt="movie on youtube" width=40% border="10" /></a>  
-[movie on youtube](https://www.youtube.com/watch?v=YOUTUBE_MOVIE_ID_HERE)  
-you must change 3 places "YOUTUBE_MOVIE_ID_HERE" to your same movie id.
+[movie on youtube](https://www.youtube.com/watch?v=2gNiQA51ORw)  
 
-Overview of this project.
-
-## Proparation
-Explanation.  
-
-* <https://matztada.github.io>  
-* [link](https://matztada.github.io)
-
-## Images
-
-<a><img src="https://matztada.github.io/images/logo.jpg" alt="" width=50%></a>  
-
+## 応用
+* 人の動き@駅、会議室、学校、ショッピングセンタetc...
+* 移動体の動き（船舶、鉄道、タクシー)
 
 ## 地図から障害物のオブジェクトを作成したい
 * 細線化でのバリが出る問題
@@ -32,7 +22,3 @@ Explanation.
 3. 端点または頂点を2つ見つける  
 4. 見つけた2点間で線分分割
 5. 線分分割が完了したら，線分にかかわっている黒い点を白く塗りつぶす
-
-## 応用
-* 人の動き@駅、会議室、学校、ショッピングセンタetc...
-* 移動体の動き（船舶、鉄道、タクシー)
