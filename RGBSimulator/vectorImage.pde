@@ -315,7 +315,7 @@ boolean judgeEdgeByAngle(PImage image, PVector s, int lenGiven, float judgeAngle
 boolean recursiveAlongPath(PVector pos, PVector posGiven, PImage image, int[][] matrix, int lenGiven, ArrayList<PVector> path, ArrayList<PVector> vertex) {
   int x = (int)pos.x;
   int y = (int)pos.y;
-  //println(str(x) + " " + str(y));
+  println(str(x) + " " + str(y));
   boolean getFlag = false;
   if (path.size() > lenGiven || (path.size() > 2 && x == (int)posGiven.x && y == (int)posGiven.y)) { 
     getFlag = true;
@@ -380,6 +380,7 @@ boolean recursiveAlongPath(PVector pos, PVector posGiven, PImage image, int[][] 
 }
 
 ArrayList<PVector> getVectorFromMatrix(PImage image, int [][] matrix, PVector s, int lenGiven) {
+  println("in getVectorFromMatrix");
   //for (int j = 0; j < image.height; j++) {
   //  for (int i = 0; i < image.width; i++) {
   //    print(matrix[i][j] + " ");
@@ -391,6 +392,7 @@ ArrayList<PVector> getVectorFromMatrix(PImage image, int [][] matrix, PVector s,
   ArrayList<PVector> path = new ArrayList<PVector>();
   ArrayList<PVector> vertex = new ArrayList<PVector>();
   //println("s: " + s);
+  println("before calling recursiveAlongPath");
   if (recursiveAlongPath(s, new PVector(s.x, s.y), image, matrix, lenGiven, path, vertex)) {
     //println("s: " + s);
   }
@@ -406,7 +408,7 @@ ArrayList<PVector> getVectorFromMatrix(PImage image, int [][] matrix, PVector s,
     rect(tempPV.x * width/image.width, tempPV.y * height/image.height, width/image.width, height/image.height);
   }
 
-  redraw();
+  //redraw();
 
   return vertex;
 }

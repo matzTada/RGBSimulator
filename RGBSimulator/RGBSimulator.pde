@@ -39,7 +39,6 @@ void setup() {
     obstacles.add(new Obstacle(tempVS));
   }
 
-
   ////get obstacles from image
   //loadedImg = loadImage("data/map.png");
   //ArrayList<ArrayList<PVector>> vss = getPolygonVectorFromImage(loadedImg, 10, 170, 1000);
@@ -141,7 +140,7 @@ void draw() {
   //check active ball
   int activeBallCnt = 0;
   for (Ball tempBall : balls) if (0 <= tempBall.pos.x && tempBall.pos.x <= width && 0 <= tempBall.pos.y && tempBall.pos.y <= height) activeBallCnt++;
-  println("cnt: " + activeBallCnt + "/" + balls.size() + " frameRate: " + frameRate);
+  println("cnt: " + activeBallCnt + "/" + balls.size() + " frameRate: " + frameRate + " obstacles.size(): " + obstacles.size());
 }
 
 void mousePressed() {
@@ -232,10 +231,15 @@ void displayNewObs() {
 
 void keyPressed() {
   switch(key) {
-  case 'i': 
+  case 'b':
+    println("initialize ball");
     //for (Ball tempBall : balls) tempBall.initialize();
     for (Ball tempBall : balls) tempBall.initialize(mouseX, mouseY, random(-5, 5), random(-5, 5), random(10, 10));    
     for (Obstacle tempObs : obstacles) tempObs.drawnCnt = 0;
+    break;
+  case 'c':
+    println("clear obstacles");
+    obstacles.clear();
     break;
   case 's': //createGraphics and save image : https://processing.org/reference/createGraphics_.html
     float zoom = 0.25;
