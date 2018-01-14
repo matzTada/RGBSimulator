@@ -4,6 +4,7 @@ int OBJ_CHR_REFLECTION = 0;
 int OBJ_CHR_DRAWN = 1;
 
 class Obstacle {
+  int id;
   ArrayList<PVector> vs;
   PVector center;
   float areaSize;
@@ -11,7 +12,8 @@ class Obstacle {
   int drawnCnt;
   int character; //refer to OBJ_CHR_
 
-  Obstacle(ArrayList<PVector> _vs) {
+  Obstacle(ArrayList<PVector> _vs, int _id) {
+    id = _id;
     vs = new ArrayList<PVector>(_vs);
     center = getCenter();
     areaSize = getAreaSize();
@@ -33,7 +35,7 @@ class Obstacle {
 
     fill(255);
     textAlign(CENTER, CENTER);
-    text(drawnCnt, center.x, center.y);
+    text("ID: " + id + "\n" + drawnCnt, center.x, center.y);
 
     //for (PVector tempVs : vs) {
     //  fill(255);

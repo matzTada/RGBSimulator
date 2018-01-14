@@ -38,7 +38,7 @@ void setup() {
   for (ArrayList<PVector> tempVS : vss) {
     for (PVector tempPV : tempVS) 
       tempPV.set(tempPV.x * width/loadedImg.width, tempPV.y * height/loadedImg.height);
-    obstacles.add(new Obstacle(tempVS));
+    obstacles.add(new Obstacle(tempVS, obstacles.size()));
   }
 
   ////get obstacles from image
@@ -147,9 +147,18 @@ void draw() {
   float barsWidth = width/4;
   float barsHeight = height/4;
   for (int i = 0; i < obstacles.size(); i++) {
+    float tempX = barsX + (float)i * barsWidth / (float)obstacles.size();
+    float tempY = barsY + barsHeight;
+    float tempW = barsWidth / (float)obstacles.size();
+    float tempH = -(float)obstacles.get(i).drawnCnt / (float)totalBall * barsHeight;
     fill(255);
     stroke(0);
-    rect(barsX + (float)i * barsWidth / (float)obstacles.size(), barsY + barsHeight, barsWidth / (float)obstacles.size(), -(float)obstacles.get(i).drawnCnt / (float)totalBall * barsHeight);
+    rect(tempX, tempY, tempW, tempH);
+    textAlign(CENTER, BOTTOM);
+    fill(0);
+    noStroke();
+    text("ID: " + obstacles.get(i).id + "\n" + obstacles.get(i).drawnCnt, tempX + tempW / 2, tempY);
+
     //println((float)i * width / (float)obstacles.size());
   }
 
@@ -183,7 +192,7 @@ void mousePressed() {
         //add new obstacle
         //println("cross");}
         newObsVs.remove(newObsVs.size() - 1);
-        Obstacle newOb = new Obstacle(newObsVs);
+        Obstacle newOb = new Obstacle(newObsVs, obstacles.size());
         obstacles.add(newOb);
 
         explode(newOb, balls);
