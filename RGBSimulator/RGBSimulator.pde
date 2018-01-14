@@ -20,6 +20,8 @@ void settings() {
 }
 
 void setup() {
+  frame.setResizable(true);
+
   //Res window setup
   ResWindowSetup();
 
@@ -135,6 +137,20 @@ void draw() {
   }
   for (Ball tempBall : balls) { 
     tempBall.display();
+  }
+
+  // visualize bars
+  int totalBall = 0;
+  for (Obstacle tempOb : obstacles) totalBall += tempOb.drawnCnt;
+  float barsX = 0;
+  float barsY = 0;
+  float barsWidth = width/4;
+  float barsHeight = height/4;
+  for (int i = 0; i < obstacles.size(); i++) {
+    fill(255);
+    stroke(0);
+    rect(barsX + (float)i * barsWidth / (float)obstacles.size(), barsY + barsHeight, barsWidth / (float)obstacles.size(), -(float)obstacles.get(i).drawnCnt / (float)totalBall * barsHeight);
+    //println((float)i * width / (float)obstacles.size());
   }
 
   //check active ball
